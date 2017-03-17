@@ -21,15 +21,14 @@ bottom_floor(FMIN) :- FMIN = #min{F : floor(F)}.
 :- holds(at(elevator(_), F), _), bottom_floor(FM), F < FM.
 
 holds(at(elevator(1), 1), 0).
-%% do(elevator(1), move(1), 1).
 holds(request(call(down), 3), 0).
 
 #program step(t). % actions, effects, and minimization go below
 %% This describes how we change state at each step
+
 holds(at(elevator(E), F + 1), t) :- holds(at(elevator(E), F), t - 1),
 									do(elevator(E), move(1), t).
 
-%% create new stage if a elevator moved downwards
 holds(at(elevator(E), F - 1), t) :- holds(at(elevator(E), F), t - 1),
 									do(elevator(E), move(-1), t).
 
@@ -49,9 +48,7 @@ holds(request(call(D), F1), t) :- holds(request(call(D), F1), t - 1),
 
 do(elevator(E), move(1), t) :- holds(at(elevator(E), F1), t - 1),   % elevator is at floor F1
                                holds(request(call(_), F2), t),  % there is a request from floor 2
-                               F1 < F2.%,                         % floor 1 is lower than floor 2
-                               %% Y = #max{F : floor(F)},          % the highest floor is Y
-                               %% F2 <= Y.                         % floor 2 must be maximal Y
+                               F1 < F2.
 
 do(elevator(E), serve, t) :- holds(at(elevator(E), F1), t),
                              holds(request(call(_), F2), t - 1),
