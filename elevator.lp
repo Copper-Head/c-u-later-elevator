@@ -14,6 +14,12 @@
 floor(1).
 floor(2).
 floor(3).
+top_floor(FMAX) :- FMAX = #max{F : floor(F)}.
+bottom_floor(FMIN) :- FMIN = #min{F : floor(F)}.
+%% Sanity-constraints
+:- holds(at(elevator(_), F), _), top_floor(FM), F > FM.
+:- holds(at(elevator(_), F), _), bottom_floor(FM), F < FM.
+
 holds(at(elevator(1), 1), 0).
 %% do(elevator(1), move(1), 1).
 holds(request(call(down), 3), 0).
