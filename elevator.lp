@@ -4,24 +4,14 @@
 
 #include <incmode>. % built-in incremental mode of clingo
 
-%% #show. % output atoms will be declared below
+%% #program base. % static rules go below
 
-
-#program base. % static rules go below
-%% This is our starting point
-
-%instances
-floor(1).
-floor(2).
-floor(3).
 top_floor(FMAX) :- FMAX = #max{F : floor(F)}.
 bottom_floor(FMIN) :- FMIN = #min{F : floor(F)}.
-%% Sanity-constraints
+%% Sanity-constraints on elevator placement
 :- holds(at(elevator(_), F), _), top_floor(FM), F > FM.
 :- holds(at(elevator(_), F), _), bottom_floor(FM), F < FM.
 
-holds(at(elevator(1), 1), 0).
-holds(request(call(down), 3), 0).
 
 #program step(t). % actions, effects, and minimization go below
 %% This describes how we change state at each step
