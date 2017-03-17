@@ -38,9 +38,8 @@ holds(at(elevator(E), F), t) :- holds(at(elevator(E), F), t - 1),
 
 %% create request for current time step if
 %% call request was not fulfilled
-holds(request(call(D), F1), t) :- holds(request(call(D), F1), t - 1).
-                                  %% holds(at(elevator(E), F2), t - 1),
-                                  %% F1 != F2.
+holds(request(call(D), F1), t) :- holds(request(call(D), F1), t - 1),
+                                  not do(elevator(_), serve, t).
 
 do(elevator(E), move(1), t) :- holds(at(elevator(E), F1), t - 1),   % elevator is at floor F1
                                holds(request(call(_), F2), t),  % there is a request from floor 2
@@ -49,7 +48,7 @@ do(elevator(E), move(1), t) :- holds(at(elevator(E), F1), t - 1),   % elevator i
                                %% F2 <= Y.                         % floor 2 must be maximal Y
 
 do(elevator(E), serve, t) :- holds(at(elevator(E), F1), t),
-                             holds(request(call(_), F2), t),
+                             holds(request(call(_), F2), t - 1),
                              not do(elevator(E), move(_), t),
                              F1 == F2.
 
@@ -58,10 +57,5 @@ do(elevator(E), serve, t) :- holds(at(elevator(E), F1), t),
 #program check(t). % fulfillment of all requests can, e.g., be checked as follows
 %% This is our stopping condition.
 %% :- not holds(at(elevator(1), 3), t), query(t).
-:- not do(elevator(1), serve, t), query(t).
-
-% desired output:
-%% holds(at(elevator(1), 2), 1).
-
-%% #show holds(X,t) : holds(X,t). % output atoms indicating states
-% :- query(t), holds(request(R,F),t).
+%% :- not do(elevator(1), serve, t), query(t).
+:- holds(request(call(_), _), t), query(t).
