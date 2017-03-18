@@ -39,6 +39,9 @@ holds(request(call(D), F1), t) :- holds(request(call(D), F1), t - 1),
 do(elevator(E), move(1), t) :- holds(at(elevator(E), F1), t - 1),   % elevator is at floor F1
                                holds(request(call(_), F2), t),  % there is a request from floor 2
                                F1 < F2.
+do(elevator(E), move(-1), t) :- holds(at(elevator(E), F1), t - 1),   % elevator is at floor F1
+                                holds(request(call(_), F2), t),  % there is a request from floor 2
+                                F1 > F2.
 
 do(elevator(E), serve, t) :- holds(at(elevator(E), F1), t),
                              holds(request(call(_), F2), t - 1),
