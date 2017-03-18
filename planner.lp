@@ -1,13 +1,7 @@
-
 %% Developing the planner
 %% #include "instances/instance-01_3-1.lp".
 %% #include "instances/instance-02_3-1.lp".
 #include "instances/instance-04_5-2.lp".
-
-max_order(O) :- O = #count{ T : init(request(T, F)) }.
-order(1..O) :- max_order(O).
-
-#show path/4.
 
 { path(E, request(TYPE, F), 1, DIST)
     : init(at(elevator(E), EF)),
@@ -25,8 +19,14 @@ order(1..O) :- max_order(O).
 %% Each request can only have one path to it!
 :- { path(_, request(TYPE, F), _, _) } > 1, init(request(TYPE, F)).
 
-%% Each request gotta have a path!
-:- init(request(TYPE, F)), not path(_, request(TYPE, F), _, _).
+%% Each needy floor gotta have a path!
+needy_floor(F) :- init(request(_, F)).
+:- needy_floor(F), not path(_, request(_, F), _, _).
+
+%% Total number of paths cannot be more than requests.
+max_order(O) :- O = #count{ T : init(request(T, F)) }.
+order(1..O) :- max_order(O).
+:- { path(_, _, _, _) } > O, max_order(O).
 
 %% One elevator cannot simultaneously handle requests on different floors
 %% At first we tried this, but it didn't work, dunno why...
@@ -37,8 +37,17 @@ order(1..O) :- max_order(O).
 
 %% Only designated elevators are allowed to take care of deliver requests
 :- path(E, request(deliver(E2), _), _, _), E != E2.
-
-%% , DIST2 = |F1 - F| + 1 + DIST1
+:- init(request(deliver(E), F)), not path(E, request(deliver(E), F), _, _).
 
 %% Minimize number of paths
-%% #minimize{D : path(_, _, _, D) }.
+distance_traveled(E, D) :- D = #max{ X : path(E, _, _, X) }, agent(elevator(E)).
+longest_path(P) :- P = #max{ D : distance_traveled(_, D) }.
+
+%% first number is the weight (I guess?)
+#minimize{ 1,D : longest_path(D) }.
+#minimize{ 2,D : distance_traveled(_, D) }.
+
+%% Show commands
+#show longest_path/1.
+#show distance_traveled/2.
+#show path/4.
