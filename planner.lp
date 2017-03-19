@@ -41,13 +41,16 @@ order(1..O) :- max_order(O).
 
 %% Minimize number of paths
 distance_traveled(E, D) :- D = #max{ X : path(E, _, _, X) }, agent(elevator(E)).
-longest_path(P) :- P = #max{ D : distance_traveled(_, D) }.
+total_distance(TD) :- TD = #sum{ D : distance_traveled(_, D) }.
+score(STEPS, TD) :- STEPS = #max{ D : distance_traveled(_, D) }, total_distance(TD).
 
 %% first number is the weight (I guess?)
-#minimize{ 1,D : longest_path(D) }.
-#minimize{ 2,D : distance_traveled(_, D) }.
+#minimize{ D@2 : score(D, _) }.
+#minimize{ STEPS@1 : score(STEPS, D) }.
 
 %% Show commands
-#show longest_path/1.
-#show distance_traveled/2.
+#show score/2.
+%% #show distance_traveled/2.
+%% #show total_distance/1.
 #show path/4.
+#show init/1.
