@@ -1,4 +1,10 @@
-%% Developing the planner
+%% Developing the planner.
+%% This version is our attempt at implementing the naive optimum seeking
+%% algorithm. This proved very quickly to be way too slow to be practical.
+%% However, we learned useful lessons about clingo's optimization statements
+%% and got a much better grasp on the sources of complexity in this case.
+
+
 %% #include "instances/instance-01_3-1.lp".
 %% #include "instances/instance-02_3-1.lp".
 #include "instances/instance-04_5-2.lp".
