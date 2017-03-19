@@ -24,7 +24,7 @@ needy_floor(F) :- init(request(_, F)).
 :- needy_floor(F), not path(_, request(_, F), _, _).
 
 %% Total number of paths cannot be more than requests.
-max_order(O) :- O = #count{ T : init(request(T, F)) }.
+max_order(O) :- O = #count{ T, F : init(request(T, F)) }.
 order(1..O) :- max_order(O).
 :- { path(_, _, _, _) } > O, max_order(O).
 
