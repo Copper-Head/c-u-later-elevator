@@ -41,8 +41,8 @@ do(elevator(E), move(DIR), t) :- current_direction(E, DIR, t - 1),
 
 do(elevator(E), serve, t) :- holds(at(elevator(E), F), t - 1),
                              target(E, F),
-                             %% holds_for_elevator(E, holds(request(_, F), t - 1)).
-                             holds(request(_, F), t - 1).
+                             holds_for_elevator(E, holds(request(_, F), t - 1)).
+                             %% holds(request(_, F), t - 1).
 
 %% mark a floor as served by an elevator
 served(E, F, t) :- do(elevator(E), serve, t),
@@ -74,10 +74,11 @@ holds(request(R, F), t) :- holds(at(elevator(E), _), t),
                            not served(E, F, t).
 #show holds/2.
 #show do/3.
-#show served/3.
-#show current_direction/3.
-#show holds_for_elevator/2.
-#show target/2.
+%% #show served/3.
+%% #show current_direction/3.
+%% #show holds_for_elevator/2.
+%% #show target/2.
+%% #show bidirectional/1.
 
 #program check(t). % fulfillment of all requests can, e.g., be checked as follows
 %% This is our stopping condition.
