@@ -34,8 +34,9 @@ current_direction(E, -1, 0) :- below(E, _), not bidirectional(E).
 %% #show target/2.
 %% #show above/2.
 %% #show below/2.
-#show current_direction/3.
+%% #show current_direction/3.
+%% #show furthest_along/4.
 %% #show furthest_below/3.
 %% #show furthest_above/3.
-#show init/1.
+%% #show init/1.
 %% #show bidirectional/1.

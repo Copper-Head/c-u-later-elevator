@@ -5,8 +5,10 @@ import sys
 """
 Hacky script for comparing output set to gold set.
 
-Usage: ./getPlan.sh elevator_lisa.lp instance 0 | \
-        python compare_solution.py instance_solution
+Usage:
+1) ./getPlan_2.sh elevator_lisa.lp instance 0
+2) python compare_solution.py solution.sol instances/instance.sol
+
 """
 
 
