@@ -8,8 +8,10 @@
 #include "planner.lp".
 
 holds(X, 0) :- init(X).
-%% top_floor(F) :- F = #max{ X : floor(X) }.
-%% bottom_floor(F) :- F = #min{ X : floor(X) }.
+
+holds_for_elevator(E, holds(request(R, F), 0)) :- target(E, F),
+                                                  holds(at(elevator(E), F), 0),
+                                                  holds(request(R, F), 0).
 
 #program step(t).
 %% The iterative  part
@@ -54,10 +56,6 @@ served(E, F, t) :- do(elevator(E), serve, t),
 holds_for_elevator(E, holds(request(R, F), t)) :- target(E, F),
                                                   holds(at(elevator(E), F), t),
                                                   holds(request(R, F), t).
-
-holds_for_elevator(E, holds(request(R, F), 0)) :- target(E, F),
-                                                  holds(at(elevator(E), F), 0),
-                                                  holds(request(R, F), 0).
 
 %% update the elevator position after moving
 holds(at(elevator(E), F + DIR), t) :- holds(at(elevator(E), F), t - 1),
