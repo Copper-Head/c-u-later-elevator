@@ -38,8 +38,9 @@ current_direction(E, D1 * -1, t) :- current_direction(E, D1, t - 1),
                                     holds(at(elevator(E), FE), t - 1),
                                     FF == FE.
 
-do(elevator(E), serve, t) :- holds(at(elevator(E), F), t - 1),
-                             target(E, F).
+do(elevator(E), serve, t) :-  holds(at(elevator(E), F), t - 1),
+                              holds(request(_, F), t -1),
+                              target(E, F).
 
 %% served(E, F) :- do(elevator(E), serve, t),
 %%                 holds(at(elevator(E), F), t).
@@ -49,7 +50,7 @@ left_to_do(E, R - 1, t) :- left_to_do(E, R, t -1), do(elevator(E), serve, t).
 
 %% How do we ensure we stay inside building?
 do(elevator(E), move(DIR), t) :- current_direction(E, DIR, t),
-                               holds(at(elevator(E), F), t - 1),
+                               %% holds(at(elevator(E), F), t - 1),
                                not do(elevator(E), serve, t).
 
 %% do(elevator(E), move(-1), t) :- current_direction(E, down, t),
@@ -63,10 +64,11 @@ holds(at(elevator(E), F), t) :- holds(at(elevator(E), F), t - 1),
                                 not do(elevator(E), move(_), t).
 
 %% requests
-holds(request(R, F), t) :- holds(request(R, F), t - 1),
-                           target(E, F),
-                           not do(elevator(E), serve, t).
+%% holds(request(R, F), t) :- holds(request(R, F), t - 1),
+%%                            target(E, F),
+%%                            not do(elevator(E), serve, t).
 
+holds(request(R, F), t) :- holds(request(R, F), t - 1).
 
 
 #program check(t). % fulfillment of all requests can, e.g., be checked as follows
