@@ -5,36 +5,37 @@ needy_floor(F) :- init(request(_, F)).
 
 %% This will become more complicated later for 2 elevators
 target(E, F) :- agent(elevator(E)), needy_floor(F).
+%% Last argument is the timestep
+left_to_do(E, R, 0) :- R = #count{ F : target(E, F)}, agent(elevator(E)).
 
 %% What about requests on the same floor?
 above(E, F) :- init(at(elevator(E), FE)), target(E, F), F > FE.
 below(E, F) :- init(at(elevator(E), FE)), target(E, F), F < FE.
 
-bidirectional(E) :- { above(E, _) } > 0, { below(E, _) } > 0, agent(elevator(E)).
+%% bidirectional(E) :- { above(E, _) } > 0, { below(E, _) } > 0, agent(elevator(E)).
 
 %% only needed if we have both
-furthest_along(E, -1, F, DIST) :- bidirectional(E),
-                                  init(at(elevator(E), FE)),
-                                  F = #min{ X : below(_, X) },
+furthest_along(E, -1, F, DIST) :- init(at(elevator(E), FE)),
+                                  F = #min{ X : below(E, X); X : init(at(elevator(E), X)) },
                                   DIST = |FE - F|.
-furthest_along(E, 1, F, DIST) :-    bidirectional(E),
-                                    init(at(elevator(E), FE)),
-                                    F = #min{ X : above(_, X) },
-                                    DIST = |FE - F|.
+furthest_along(E, 1, F, DIST) :-  init(at(elevator(E), FE)),
+                                  F = #max{ X : above(E, X); X : init(at(elevator(E), X)) },
+                                  DIST = |FE - F|.
 
 %% What if they are equal?
 current_direction(E, 1, 0) :- furthest_along(E, 1, _, DA), furthest_along(E, -1, _, DB), DA <= DB.
 current_direction(E, -1, 0) :- furthest_along(E, 1, _, DA), furthest_along(E, -1, _, DB), DA > DB.
 
-current_direction(E, 1, 0) :- above(E, _), not bidirectional(E).
-current_direction(E, -1, 0) :- below(E, _), not bidirectional(E).
+%% current_direction(E, 1, 0) :- above(E, _), not bidirectional(E).
+%% current_direction(E, -1, 0) :- below(E, _), not bidirectional(E).
 %% current_direction(E, stay, 0) :- furthest_above(E, DA), furthest_below(E, DB), DA > DB.
 
 
-%% #show target/2.
+#show target/2.
 %% #show above/2.
 %% #show below/2.
-%% #show current_direction/3.
+#show current_direction/3.
+#show left_to_do/3.
 %% #show furthest_along/4.
 %% #show furthest_below/3.
 %% #show furthest_above/3.
