@@ -3,12 +3,12 @@
 SCRIPT_PATH="compare_solution.py"
 PYTHON="/usr/bin/python3"
 
-encoding="elevator_lisa.lp"
+encoding="elevator.lp"
 solution_file="solution.sol"
 
 if [ -z "$1" ]
   then
-    echo "USAGE: ./getPlan.sh <instance> [<encoding>]"
+    echo "USAGE: ./getPlan_2.sh <instance> [<encoding>]"
   else
     if [ -n "$2" ]
     then
