@@ -50,13 +50,17 @@ n_steps(E, STEPS) :-  STEPS = ST + D,
                       n_moves(E, D),
                       agent(elevator(E)).
 
-slowest_guy(STEPS) :- STEPS = #max{ S : n_steps(_, S) }.
-score(ST, TOTAL_STEPS) :- slowest_guy(ST),
-                          TOTAL_STEPS = #sum { X, E : n_steps(E, X), agent(elevator(E)) }.
+el_step(1..N) :- n_steps(_, N).
+all_el_steps(N) :- N = #count{ X : el_step(X) }.
+%% slowest_guy(1..STEPS) :- STEPS = #max{ S : n_steps(_, S) }.
+%% score(1..TOTAL_STEPS) :-
+%% slowest_guy(ST),
+                          %% TOTAL_STEPS = #sum { X, E : n_steps(E, X), agent(elevator(E)) }.
 
 %% We couldn't figure out how to optimize two objectives so for now we are only
 %% minimizing the number of steps performed by the "slowest" elevator
-#minimize{ S : slowest_guy(S) }.
+#minimize{ 1,S : el_step(S) }.
+%% #minimize{ 1@1,M : score(M) }.
 
 %% Under Construction: oc
 %% Some notes
