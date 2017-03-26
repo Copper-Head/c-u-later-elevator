@@ -3,6 +3,7 @@
 %
 
 #include <incmode>. % built-in incremental mode of clingo
+#show.
 
 #program base.
 % static rules go below
