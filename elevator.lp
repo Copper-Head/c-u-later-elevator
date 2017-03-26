@@ -60,9 +60,10 @@ holds(at(elevator(E), F + DIR), t) :- holds(at(elevator(E), F), t - 1),
 holds(at(elevator(E), F), t) :- holds(at(elevator(E), F), t - 1),
                                 not do(elevator(E), move(_), t).
 
-%% carry the requests along if they were not fulfilled on this floor
-holds(request(R, F), t) :- holds(at(elevator(E), _), t),
-                           holds(request(R, F), t - 1),
+%% carry the requests along if they were not fulfilled at this time point
+%% by an elevator that had them as targets.
+holds(request(R, F), t) :- holds(request(R, F), t - 1),
+                           target(E, F),
                            not served(E, F, t).
 
 
