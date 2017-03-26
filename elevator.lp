@@ -73,9 +73,10 @@ holds(request(R, F), t) :- holds(request(R, F), t - 1),
                            target(E, F),
                            not served(E, F, t).
 
-
-#show holds/2.
-#show do/3.
+#show do(A,X,t) : do(A,X,t).
+#show holds(X,t) : holds(X,t).
+%% #show holds/2.
+%% #show do/3.
 %% #show served/3.
 %% #show current_direction/3.
 %% #show stop_needed/2.
