@@ -17,14 +17,9 @@ holds_for_elevator(E, holds(request(R, F), 0)) :- target(E, F),
 %% The iterative  part
 #program step(t).
 
-%% for a non-bidirectional elevator, the direction
-%% always stays the same
-current_direction(E, D, t) :- current_direction(E, D, t),
-                              not bidirectional(E).
 
 %% switch direction if you hit the furthest along floor
 current_direction(E, D * -1, t) :- current_direction(E, D, t - 1),
-                  							   bidirectional(E),
                   							   holds(at(elevator(E), F1), t),
                   							   furthest_along(E, D, F2, _),
                                    F1 == F2.
@@ -32,7 +27,6 @@ current_direction(E, D * -1, t) :- current_direction(E, D, t - 1),
 %% maintain direction if you still have requests above/below in the
 %% current direction
 current_direction(E, D, t) :- current_direction(E, D, t - 1),
-                              bidirectional(E),
                               holds(at(elevator(E), F1), t),
                               furthest_along(E, D, F2, _),
                               F1 != F2.
@@ -81,7 +75,6 @@ holds(request(R, F), t) :- holds(at(elevator(E), _), t),
 %% #show current_direction/3.
 %% #show holds_for_elevator/2.
 %% #show target/2.
-%% #show bidirectional/1.
 
 #program check(t).
 %% fulfillment of all requests can, e.g., be checked as follows

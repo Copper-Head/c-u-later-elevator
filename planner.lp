@@ -10,7 +10,7 @@ target(E, F) :- agent(elevator(E)), needy_floor(F).
 above(E, F) :- init(at(elevator(E), FE)), target(E, F), F > FE.
 below(E, F) :- init(at(elevator(E), FE)), target(E, F), F < FE.
 
-bidirectional(E) :- { above(E, _) } > 0, { below(E, _) } > 0, agent(elevator(E)).
+%% bidirectional(E) :- { above(E, _) } > 0, { below(E, _) } > 0, agent(elevator(E)).
 
 furthest_along(E, -1, F, DIST) :- init(at(elevator(E), FE)),
                                   F = #min{ X : below(E, X); X : init(at(elevator(E), X)) },
@@ -25,8 +25,8 @@ furthest_along(E, 1, F, DIST) :-  init(at(elevator(E), FE)),
 current_direction(E, 1, 0) :- furthest_along(E, 1, _, DA), furthest_along(E, -1, _, DB), DA <= DB.
 current_direction(E, -1, 0) :- furthest_along(E, 1, _, DA), furthest_along(E, -1, _, DB), DA > DB.
 
-current_direction(E, 1, 0) :- above(E, _), not bidirectional(E).
-current_direction(E, -1, 0) :- below(E, _), not bidirectional(E).
+%% current_direction(E, 1, 0) :- above(E, _), not bidirectional(E).
+%% current_direction(E, -1, 0) :- below(E, _), not bidirectional(E).
 
 
 %% #show target/2.
