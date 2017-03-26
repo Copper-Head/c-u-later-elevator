@@ -31,11 +31,14 @@ current_direction(E, D, t) :- current_direction(E, D, t - 1),
                               furthest_along(E, D, F2, _),
                               F1 != F2.
 
-%% elevator can only move if it did not perform an action already and
-%% if there is no request to be fulfilled
+%% elevator can only move if it can't serve any requests on this floor
+%% and if it has any more floors to serve.
+%% This last restriction is in place for the case of multiple elevators:
+%% we want those that are "done" to stop moving even if others still are
 do(elevator(E), move(DIR), t) :- current_direction(E, DIR, t - 1),
                                  holds(at(elevator(E), F), t - 1),
-                                 not stop_needed(E, t - 1).
+                                 not stop_needed(E, t - 1),
+                                 not left_to_do(E, 0, t - 1).
 
 %% elevator serves if it is on a floor with a request and if this request
 %% "belongs" to the elevator
@@ -45,6 +48,10 @@ do(elevator(E), serve, t) :- holds(at(elevator(E), F), t - 1),
 %% mark a floor as served by an elevator
 served(E, F, t) :- do(elevator(E), serve, t),
                    holds(at(elevator(E), F), t - 1).
+
+%% Decrement number of "todo" floors for an elevator if it served this turn.
+left_to_do(E, N, t) :- left_to_do(E, N, t - 1), not do(elevator(E), serve, t).
+left_to_do(E, N - 1, t) :- left_to_do(E, N, t - 1), do(elevator(E), serve, t).
 
 %% make sure a request belongs to an elevator
 stop_needed(E, t) :-  target(E, F),

@@ -6,6 +6,8 @@ needy_floor(F) :- init(request(_, F)).
 %% This will become more complicated later for 2 elevators
 target(E, F) :- agent(elevator(E)), needy_floor(F).
 
+left_to_do(E, N, 0) :- N = #count{F : target(E, F)}, agent(elevator(E)).
+
 %% What about requests on the same floor?
 above(E, F) :- init(at(elevator(E), FE)), target(E, F), F > FE.
 below(E, F) :- init(at(elevator(E), FE)), target(E, F), F < FE.
