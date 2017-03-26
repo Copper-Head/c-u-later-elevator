@@ -10,6 +10,6 @@ if [ -z "$1" ]
     then
       encoding="$2"
     fi
-    clingo $1 $encoding --outf=1 --quiet=1,0 | grep -A1 ANSWER | tail -n1 | tr " " "\n"
+    clingo $1 $encoding --outf=1 --quiet=1,0 | ./prettify.sh
 
 fi
