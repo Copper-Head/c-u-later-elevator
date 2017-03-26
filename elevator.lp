@@ -10,9 +10,9 @@
 
 holds(X, 0) :- init(X).
 
-holds_for_elevator(E, holds(request(R, F), 0)) :- target(E, F),
-                                                  holds(at(elevator(E), F), 0),
-                                                  holds(request(R, F), 0).
+stop_needed(E, 0) :-  target(E, F),
+                      holds(at(elevator(E), F), 0),
+                      holds(request(_, F), 0).
 
 %% The iterative  part
 #program step(t).
@@ -35,24 +35,21 @@ current_direction(E, D, t) :- current_direction(E, D, t - 1),
 %% if there is no request to be fulfilled
 do(elevator(E), move(DIR), t) :- current_direction(E, DIR, t - 1),
                                  holds(at(elevator(E), F), t - 1),
-                                 not holds_for_elevator(E, holds(request(_, F), t - 1)).
+                                 not stop_needed(E, t - 1).
 
 %% elevator serves if it is on a floor with a request and if this request
 %% "belongs" to the elevator
 do(elevator(E), serve, t) :- holds(at(elevator(E), F), t - 1),
-                             target(E, F),
-                             holds_for_elevator(E, holds(request(_, F), t - 1)).
+                             stop_needed(E, t - 1).
 
 %% mark a floor as served by an elevator
 served(E, F, t) :- do(elevator(E), serve, t),
-                   holds(at(elevator(E), F), t - 1),
-                   target(E, F).
+                   holds(at(elevator(E), F), t - 1).
 
 %% make sure a request belongs to an elevator
-%% (I know, stupid predicate name)
-holds_for_elevator(E, holds(request(R, F), t)) :- target(E, F),
-                                                  holds(at(elevator(E), F), t),
-                                                  holds(request(R, F), t).
+stop_needed(E, t) :-  target(E, F),
+                      holds(at(elevator(E), F), t),
+                      holds(request(R, F), t).
 
 %% update the elevator position after moving
 holds(at(elevator(E), F + DIR), t) :- holds(at(elevator(E), F), t - 1),
@@ -73,7 +70,7 @@ holds(request(R, F), t) :- holds(at(elevator(E), _), t),
 #show do/3.
 %% #show served/3.
 %% #show current_direction/3.
-%% #show holds_for_elevator/2.
+%% #show stop_needed/2.
 %% #show target/2.
 
 #program check(t).
