@@ -1,7 +1,8 @@
-
+agent(elevator(1)).
 floor(1).
 floor(2).
 floor(3).
 
-holds(at(elevator(1), 1), 0).
-holds(request(call(down), 3), 0).
+init(at(elevator(1), 1)).
+init(request(call(down), 3)).
+init(request(call(down), 5)).
