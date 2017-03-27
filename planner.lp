@@ -76,10 +76,6 @@ el_step(1..N) :- n_steps(_, N).
 %% #minimize{ SLOWEST : score(SLOWEST, _) }.
 
 
-%% This is used to prevent elevators from moving once they've served all their targets.
-left_to_do(E, N, 0) :- N = #count{F : target(E, F)}, agent(elevator(E)).
-
-
 initial_direction(E, 1) :- bidirectional(E),
                               furthest_along(E, 1, _, DA),
                               furthest_along(E, -1, _, DB),
@@ -102,7 +98,7 @@ switch(E, STEP) :-  bidirectional(E),
 switch(E, STEP) :-  bidirectional(E),
                     initial_direction(E, 1),
                     furthest_along(E, 1, _, DIST),
-                    STOPS = #count{ F : below(E, F)},
+                    STOPS = #count{ F : above(E, F)},
                     STEP = STOPS + DIST.
 
 current_direction(E, DIR, 1..N) :- initial_direction(E, DIR), not bidirectional(E),
