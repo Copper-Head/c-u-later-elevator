@@ -18,8 +18,9 @@ free_call(F) :- needy_floor(F), not init(request(deliver(_), F)).
 %% This counts the number of floors an elevator stops at (serves!).
 n_stops(E, N) :- agent(elevator(E)), N = #count{ F : target(E, F) }.
 
-above(E, F) :- init(at(elevator(E), FE)), target(E, F), F > FE.
-below(E, F) :- init(at(elevator(E), FE)), target(E, F), F < FE.
+%% still not sure including the init floor is a good idea...
+above(E, F) :- init(at(elevator(E), FE)), target(E, F), F >= FE.
+below(E, F) :- init(at(elevator(E), FE)), target(E, F), F <= FE.
 
 furthest_along(E, -1, F, DIST) :- init(at(elevator(E), FE)),
                                   F = #min{ X : below(E, X); X : init(at(elevator(E), X)) },
@@ -77,16 +78,35 @@ all_el_steps(N) :- N = #count{ X : el_step(X) }.
 left_to_do(E, N, 0) :- N = #count{F : target(E, F)}, agent(elevator(E)).
 
 
-current_direction(E, 1, 0) :- bidirectional(E),
+initial_direction(E, 1) :- bidirectional(E),
                               furthest_along(E, 1, _, DA),
                               furthest_along(E, -1, _, DB),
                               DA <= DB.
-current_direction(E, -1, 0) :-  bidirectional(E),
+initial_direction(E, -1) :-  bidirectional(E),
                                 furthest_along(E, 1, _, DA),
                                 furthest_along(E, -1, _, DB),
                                 DA > DB.
 
 bidirectional(E) :- { above(E, _) } > 0, { below(E, _) } > 0, agent(elevator(E)).
 
-current_direction(E, 1, 0) :- above(E, _), not bidirectional(E).
-current_direction(E, -1, 0) :- below(E, _), not bidirectional(E).
+initial_direction(E, 1) :- above(E, _), not bidirectional(E).
+initial_direction(E, -1) :- below(E, _), not bidirectional(E).
+
+switch(E, STEP) :-  bidirectional(E),
+                    initial_direction(E, -1),
+                    furthest_along(E, -1, _, DIST),
+                    STOPS = #count{ F : below(E, F)},
+                    STEP = STOPS + DIST.
+switch(E, STEP) :-  bidirectional(E),
+                    initial_direction(E, 1),
+                    furthest_along(E, 1, _, DIST),
+                    STOPS = #count{ F : below(E, F)},
+                    STEP = STOPS + DIST.
+
+current_direction(E, DIR, 1..N) :- initial_direction(E, DIR), not bidirectional(E),
+                                    n_steps(E, N).
+current_direction(E, DIR, 1..N-1) :- initial_direction(E, DIR), bidirectional(E),
+                                    switch(E, N).
+current_direction(E, DIR * -1, SW..N-1) :- initial_direction(E, DIR), bidirectional(E),
+                                    switch(E, SW),
+                                    n_steps(E, N).
