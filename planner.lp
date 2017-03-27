@@ -3,12 +3,15 @@
 
 needy_floor(F) :- init(request(_, F)).
 
+only_one_elevator :- NE = #count { E : agent(elevator(E))}, NE == 1.
+
 %% Deliver requests are automatically added as targets for the corresponding elevators.
 target(E, F) :- agent(elevator(E)), init(request(deliver(E), F)).
+target(E, F) :- agent(elevator(E)), needy_floor(F), only_one_elevator.
 %% The remaining "needy floors" are considered "free"...
 free_call(F) :- needy_floor(F), not init(request(deliver(_), F)).
 %% ... since each elevator is free to choose as targets any subset of them.
-{ target(E, F): free_call(F) } :- agent(elevator(E)).
+{ target(E, F): free_call(F) } :- agent(elevator(E)), not only_one_elevator.
 %% However, every "free call" must be served.
 :- free_call(F), not target(_, F).
 
@@ -52,7 +55,6 @@ n_steps(E, STEPS) :-  STEPS = ST + D,
                       agent(elevator(E)).
 
 el_step(1..N) :- n_steps(_, N).
-all_el_steps(N) :- N = #count{ X : el_step(X) }.
 %% slowest_guy(1..STEPS) :- STEPS = #max{ S : n_steps(_, S) }.
 %% score(1..TOTAL_STEPS) :-
 %% slowest_guy(ST),
