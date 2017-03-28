@@ -29,6 +29,7 @@ def read_from_stdin():
 
     return s1
 
+
 def order_output(s):
     # 'do(elevator(2),serve,62).'
     # t = ('do(elevator(2),serve,62).', 62)
@@ -39,35 +40,38 @@ def order_output(s):
     # return sorted(modified_set, key=lambda x: x[1])
     return [i[0] for i in sorted(modified_set, key=lambda x: x[1])]
 
-def read_from_file(file_name):
+
+def file2set(file_obj):
     """Collect elements from solution in set."""
-    s2 = set()
+    return set(line.strip() for line in file_obj)
+
+
+def read_from_file(file_name):
     with open(file_name, "r") as f:
-        for line in f:
-            s2.add(line.strip())
-    return s2
+        return file2set(f)
 
 
 if __name__ == "__main__":
 
-    # print(sys.argv[1])
-    # print(sys.argv[2])
+    prs = argparse.ArgumentParser()
+    prs.add_argument('expected')
+    prs.add_argument('ours', nargs="?")
+    args = prs.parse_args()
 
-    test = read_from_file(sys.argv[1])
-    # print(test)
-    gold = read_from_file(sys.argv[2])
-    # print(gold)
+    expected_set = read_from_file(args.expected)
+    if args.ours:
+        our_set = read_from_file(args.ours)
+    else:
+        our_set = file2set(sys.stdin)
 
     # print("\ncorrect solution: {}\n".format(compare_sets(test, gold)))
     # print("\ndifferences in set 1 and set 2:\n\n {}\n".format(compare_sets(test, gold)))
 
-    test_ordered = order_output(test - gold)
-    gold_ordered = order_output(gold - test)
+    test_ordered = order_output(our_set - expected_set)
+    gold_ordered = order_output(expected_set - our_set)
 
-    with open("test.txt", "w") as f:
+    with open("our-output.lp", "w") as f:
         f.write("\n".join(test_ordered))
 
-    with open("gold.txt", "w") as f:
+    with open("expected-output.lp", "w") as f:
         f.write("\n".join(gold_ordered))
-
-
