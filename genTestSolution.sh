@@ -4,6 +4,7 @@ SCRIPT_PATH="compare_solution.py"
 PYTHON="/usr/bin/python3"
 
 encoding="planner.lp"
+# encoding="elevator.lp"
 solution_file="solution.sol"
 
 if [ -z "$1" ]
