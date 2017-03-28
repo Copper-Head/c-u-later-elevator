@@ -1,7 +1,7 @@
 #!/bin/bash
 
-encoding="elevator.lp"
-# encoding="planner.lp"
+# encoding="elevator.lp"
+encoding="planner.lp"
 
 if [ -z "$1" ]
   then
