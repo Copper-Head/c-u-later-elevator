@@ -1,0 +1,7 @@
+#!/bin/bash
+
+set -e
+# encoding="planner.lp"
+encoding="elevator.lp"
+
+./getPlan.sh $encoding $1 | python compare_solution.py $1.sol
