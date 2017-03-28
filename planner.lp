@@ -64,11 +64,13 @@ el_step(1..N) :- n_steps(_, N).
                           %% TOTAL_STEPS = #sum { X, E : n_steps(E, X), agent(elevator(E)) }.
 
 travel_distance(1..N) :- N = #sum{ X : n_moves(_, X) }.
+stop(1..N) :- N = #sum{ X : n_stops(_, X) }.
 
 %% We couldn't figure out how to optimize two objectives so for now we are only
 %% minimizing the number of steps performed by the "slowest" elevator
-#minimize{ 1@2,S : el_step(S) }.
-#minimize{ 1@1,T : travel_distance(T) }.
+#minimize{ 1@3,S : el_step(S) }.
+#minimize{ 1@2,T : travel_distance(T) }.
+#minimize{ 1@1,T : stop(T) }.
 
 
 %% #minimize{ 1@2,T : n_moves(E, T) }.
