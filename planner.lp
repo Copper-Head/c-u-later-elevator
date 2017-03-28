@@ -58,13 +58,18 @@ n_steps(E, STEPS) :-  STEPS = ST + D,
 
 el_step(1..N) :- n_steps(_, N).
 %% slowest_guy(1..STEPS) :- STEPS = #max{ S : n_steps(_, S) }.
-%% score(1..TOTAL_STEPS) :-
+%% score(MAX_STEPS, MAX_STOPS) :- el_step(MAX_STEPS),
+%%                                MAX_STOPS = n_stop(E, N)
 %% slowest_guy(ST),
                           %% TOTAL_STEPS = #sum { X, E : n_steps(E, X), agent(elevator(E)) }.
 
+travel_distance(1..N) :- n_moves(_, N).
+
 %% We couldn't figure out how to optimize two objectives so for now we are only
 %% minimizing the number of steps performed by the "slowest" elevator
-#minimize{ 1,S : el_step(S) }.
+#minimize{ 1@2,S : el_step(S) }.
+#minimize{ 1@1,T : travel_distance(T) }.
+
 
 %% #minimize{ 1@2,T : n_moves(E, T) }.
 %% #minimize{ 1@1,M : score(M) }.
@@ -128,4 +133,6 @@ current_direction(E, DIR * -1, SW..N-1) :- initial_direction(E, DIR), bidirectio
                                            switch(E, SW),
                                            n_steps(E, N).
 
-#show target/3.
+%% #show target/3.
+%% #show travel_distance/1.
+%% #show el_step/1.
