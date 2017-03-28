@@ -22,7 +22,7 @@ first_turn(t) :- t == 1.
 %% mark floor as visited after 2 turns.
 %% 2 is needed because when we check to see if we should serve, we
 %% look at the previous time step.
-been_here(E, F) :- holds(at(elevator(E), F), t - 2).
+been_here(E, F, t - 2) :- holds(at(elevator(E), F), t - 2).
 
 %% mark a floor as served by an elevator
 served(E, F, t) :- do(elevator(E), serve, t),
@@ -43,7 +43,7 @@ do(elevator(E), move(DIR), t) :- do(elevator(E), move(DIR), t - 1),
 do(elevator(E), move(DIR), t) :- do(elevator(E), move(DIR), t - 1),
                                   current_direction(E, DIR, t),
                                   target(E, F),
-                                  been_here(E, F),
+                                  been_here(E, F, _),
                                   holds(at(elevator(E), F), t - 1).
 %% serve -> move
 do(elevator(E), move(DIR), t) :- do(elevator(E), serve, t - 1),
@@ -59,7 +59,7 @@ do(elevator(E), serve, t) :- do(elevator(E), move(D), t - 1),
                             not do(elevator(E), serve, t - 1),
                             target(E, F),
                             %% el_step(T),
-                            not been_here(E, F),
+                            not been_here(E, F, _),
                             %% T < t,
                             holds(at(elevator(E), F), t - 1).
 
