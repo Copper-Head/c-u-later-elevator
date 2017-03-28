@@ -15,6 +15,8 @@ free_call(F) :- needy_floor(F), not init(request(deliver(_), F)).
 %% However, every "free call" must be served.
 :- free_call(F), not target(_, F, 0).
 
+%% if an elevator passes a needy floor either way, it shouldn't skip it if it has a call request on it
+
 %% provisional
 :- agent(elevator(E)), not target(E, _, 0).
 
@@ -63,6 +65,8 @@ el_step(1..N) :- n_steps(_, N).
 %% We couldn't figure out how to optimize two objectives so for now we are only
 %% minimizing the number of steps performed by the "slowest" elevator
 #minimize{ 1,S : el_step(S) }.
+
+%% #minimize{ 1@2,T : n_moves(E, T) }.
 %% #minimize{ 1@1,M : score(M) }.
 
 %% Under Construction: oc
@@ -81,13 +85,14 @@ left_to_do(E, N, 0) :- N = #count{F : target(E, F, 0)}, agent(elevator(E)).
 
 
 initial_direction(E, 1) :- bidirectional(E),
-                              furthest_along(E, 1, _, DA),
-                              furthest_along(E, -1, _, DB),
-                              DA <= DB.
+                           furthest_along(E, 1, _, DA),
+                           furthest_along(E, -1, _, DB),
+                           DA <= DB.
+
 initial_direction(E, -1) :-  bidirectional(E),
-                                furthest_along(E, 1, _, DA),
-                                furthest_along(E, -1, _, DB),
-                                DA > DB.
+                             furthest_along(E, 1, _, DA),
+                             furthest_along(E, -1, _, DB),
+                             DA > DB.
 
 bidirectional(E) :- { above(E, _) } > 0, { below(E, _) } > 0, agent(elevator(E)).
 
@@ -123,3 +128,4 @@ current_direction(E, DIR * -1, SW..N-1) :- initial_direction(E, DIR), bidirectio
                                            switch(E, SW),
                                            n_steps(E, N).
 
+#show target/3.
