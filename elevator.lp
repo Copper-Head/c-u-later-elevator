@@ -8,9 +8,8 @@
 #program base.
 % static rules go below
 #include "planner.lp".
-%% New attempt at finding a global plan
-%% Currently can only handle planning for one elevator
 
+%%%%%%%%%%%%%%%%%%   elevator.lp   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 holds(X, 0) :- init(X).
 
 %% The iterative  part
@@ -49,6 +48,10 @@ served(E, F, t) :- do(elevator(E), serve, t),
                    holds(at(elevator(E), F), t).
 
 %% carry a request along if there exists a target and it was not served
+%% holds(request(R, F), t) :- holds(request(R, F), t - 1),
+%%                            target(E, F, t - 1),
+%%                            not served(E, F, t).
+
 holds(request(call(DIR), F), t) :- holds(request(call(DIR), F), t - 1),
                                    target(E, F, t - 1),
                                    not served(E, F, t).
@@ -74,8 +77,10 @@ left_to_do(E, N - 1, t) :- left_to_do(E, N, t - 1),
 %% #show stop_needed/2.
 %% #show target/3.
 
+
 #program check(t).
 
+#minimize{ 1@1,T : target(_, _, T) }.
 #show holds(X,t) : holds(X,t).
 
 %% fulfillment of all requests can, e.g., be checked as follows
