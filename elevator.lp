@@ -80,7 +80,8 @@ left_to_do(E, N - 1, t) :- left_to_do(E, N, t - 1),
 
 #program check(t).
 
-#minimize{ 1@1,T : target(_, _, T) }.
+#maximize{ 1@1,T : target(_, _, T) }.
+
 #show holds(X,t) : holds(X,t).
 
 %% fulfillment of all requests can, e.g., be checked as follows
