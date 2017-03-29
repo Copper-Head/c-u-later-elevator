@@ -1,15 +1,15 @@
-import argparse
-import fileinput
-import sys
-import re
+#!/usr/bin/env python
 """
 Hacky script for comparing output set to gold set.
 
 Usage:
-1) ./getPlan_2.sh elevator_lisa.lp instance 0
-2) python compare_solution.py solution.sol instances/instance.sol
+just run python compare_solution.py -h
 
 """
+import argparse
+import fileinput
+import sys
+import re
 
 
 def compare_sets(s1, s2):
@@ -42,13 +42,12 @@ def order_output(s):
 
 
 def file2set(file_obj):
-    """Collect elements from solution in set."""
+    """Turn lines in a file into a set."""
     return set(line.strip() for line in file_obj)
 
 
 def read_from_file(file_name):
-    """Collect elements from solution in set."""
-    s2 = set()
+    """Read set from a file"""
     with open(file_name, "r") as f:
         return file2set(f)
 
@@ -56,8 +55,12 @@ def read_from_file(file_name):
 if __name__ == "__main__":
 
     prs = argparse.ArgumentParser()
-    prs.add_argument('expected')
-    prs.add_argument('ours', nargs="?")
+    prs.add_argument('expected', help="Name of gold standard file")
+    prs.add_argument(
+        'ours',
+        nargs="?",
+        help="Name of our output. "
+        "If not given, stdin is used.")
     args = prs.parse_args()
 
     expected_set = read_from_file(args.expected)
