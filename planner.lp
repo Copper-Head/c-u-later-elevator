@@ -135,6 +135,7 @@ current_direction(E, DIR * -1, SW..N-1) :- initial_direction(E, DIR), bidirectio
                                            switch(E, SW),
                                            n_steps(E, N).
 
+%% :- {switch(E, _)} > 1, bidirectional(E), agent(elevator(E)).
 %% #show target/3.
 %% #show travel_distance/1.
 %% #show el_step/1.

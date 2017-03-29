@@ -49,9 +49,13 @@ served(E, F, t) :- do(elevator(E), serve, t),
                    holds(at(elevator(E), F), t).
 
 %% carry a request along if there exists a target and it was not served
-holds(request(R, F), t) :- holds(request(R, F), t - 1),
-                           target(E, F, t - 1),
-                           not served(E, F, t).
+holds(request(call(DIR), F), t) :- holds(request(call(DIR), F), t - 1),
+                                   target(E, F, t - 1),
+                                   not served(E, F, t).
+
+holds(request(deliver(E), F), t) :- holds(request(deliver(E), F), t - 1),
+                                    target(E, F, t - 1),
+                                    not served(E, F, t).
 
 %% decrement the to-do counter if the elevator served a floor
 left_to_do(E, N, t) :- left_to_do(E, N, t - 1),
@@ -76,4 +80,5 @@ left_to_do(E, N - 1, t) :- left_to_do(E, N, t - 1),
 
 %% fulfillment of all requests can, e.g., be checked as follows
 %% This is our stopping condition.
+:- query(t), target(E, F, t).
 :- query(t), holds(request(R, F), t).
