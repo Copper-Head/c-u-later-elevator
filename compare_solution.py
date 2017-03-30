@@ -31,14 +31,10 @@ def read_from_stdin():
 
 
 def order_output(s):
-    # 'do(elevator(2),serve,62).'
-    # t = ('do(elevator(2),serve,62).', 62)
-    modified_set = []
-    for i in s:
-        time_step = int(re.search("(\d{1,4})\)\.", i).group(1))
-        modified_set.append((i, time_step))
-    # return sorted(modified_set, key=lambda x: x[1])
-    return [i[0] for i in sorted(modified_set, key=lambda x: x[1])]
+    time_step_matches = (re.search("(\d{1,4})\)\.", i) for i in s)
+    time_steps = ((item, int(m.group(1)))
+                  for m, item in zip(time_step_matches, s) if m)
+    return [i[0] for i in sorted(time_steps, key=lambda x: x[1])]
 
 
 def file2set(file_obj):
