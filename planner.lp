@@ -16,9 +16,6 @@ target(E, F) :- agent(elevator(E)), needy_floor(F), only_one_elevator.
 free_call(F) :- needy_floor(F), not init(request(deliver(_), F)).
 %% ... since each elevator is free to choose as targets any subset of them.
 { target(E, F): free_call(F) } :- agent(elevator(E)), not only_one_elevator.
-%% However, as a small optimization we assign a free floor to an elevator if it
-%% starts on that floor. This is not proven to be universally optimal!!
-target(E, F) :- init(at(elevator(E), FE)), free_call(F), FE == F.
 %% Note that every "free call" must be served.
 :- free_call(F), not target(_, F).
 %% But we don't want to duplicate effort, so...
