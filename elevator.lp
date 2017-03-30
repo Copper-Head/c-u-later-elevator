@@ -16,21 +16,26 @@ holds(X, 0) :- init(X).
 #program step(t).
 
 
-do(elevator(E), serve, t) :- serve_at(E, F, t),
-holds(at(elevator(E), F), t - 1).
+do(elevator(E), serve, t) :-  serve_at(E, F, t),
+                              holds(at(elevator(E), F), t - 1).
 
-do(elevator(E), move(DIR), t) :- current_direction(E, DIR, t),
-not serve_at(E, _, t).
+do(elevator(E), move(DIR), t) :-  current_direction(E, DIR, t),
+                                  not serve_at(E, _, t).
 
 
 %% update the elevator position after moving
 holds(at(elevator(E), F + DIR), t) :- holds(at(elevator(E), F), t - 1),
-                                      do(elevator(E), move(DIR), t).
+                                      current_direction(E, DIR, t),
+                                      not serve_at(E, F, t).
 
 %% stay on the floor if the elevator did not move
 %% (meaning it either served or did nothing)
 holds(at(elevator(E), F), t) :- holds(at(elevator(E), F), t - 1),
-                                not do(elevator(E), move(_), t).
+                                do(elevator(E), serve, t).
+
+holds(at(elevator(E), F), t) :- holds(at(elevator(E), F), t - 1),
+                                n_steps(E, T),
+                                T < t.
 
 %% carry the requests along if they were not fulfilled at this time point
 %% by an elevator that had them as targets.
