@@ -40,8 +40,7 @@ holds(at(elevator(E), F), t) :- holds(at(elevator(E), F), t - 1),
 %% carry the requests along if they were not fulfilled at this time point
 %% by an elevator that had them as targets.
 holds(request(call(D), F), t) :-  holds(request(call(D), F), t - 1),
-                                  target(E, F),
-                                   not serve_at(E, F, t).
+                                  not serve_at(_, F, t).
 
 holds(request(deliver(E), F), t) :- holds(request(deliver(E), F), t - 1),
                                      target(E, F),
