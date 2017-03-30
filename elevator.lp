@@ -31,7 +31,13 @@ free_call(F) :- needy_floor(F), not init(request(deliver(_), F)).
 %% But we don't want to duplicate effort, so...
 n_targets(N) :- N = #count{ E, F : target(E, F) }.
 %% We only assign as many targets as is absolutely necessary to complete the mission
-:-  n_targets(N), DR = #count{ ED, FD : init(request(deliver(ED), FD)) },
+%% QUESTION:
+%% We originally wanted to avoid creating the n_targets statement and
+%% generate N inside the constraint.
+%% However, clingo gave us a parsing error, refusing, it seems, to read
+%% only number assignments. Why is that?
+:-  n_targets(N),
+    DR = #count{ ED, FD : init(request(deliver(ED), FD)) },
     DC = #count{ FC : free_call(FC) },
     N > DR + DC.
 
@@ -43,7 +49,7 @@ n_targets(N) :- N = #count{ E, F : target(E, F) }.
 direction(1).
 direction(-1).
 
-%% this predicate might be redundant but it's useful and cheap for now
+%% This predicate might be redundant but it's useful and cheap for now
 request_at_start(E) :- init(at(elevator(E), FE)), target(E, F), FE == F.
 
 %% Create coordinates from elevator to target:
@@ -205,6 +211,10 @@ holds(at(elevator(E), F), t) :- holds(at(elevator(E), F), t - 1),
 
 %% Carry "call" requests along if they were not fulfilled at this time point
 %% by any elevator on that floor.
+%% QUESTION:
+%% Why can't we use the same exact antecedents as for deliver requests?
+%% When we tried, we got weird edge-case behavior in instance 19, 25, 42(?)
+%% where a certain call request would get carried despite an elevator serving that floor.
 holds(request(call(D), F), t) :-  holds(request(call(D), F), t - 1),
                                   not serve_at(_, F, t).
 
