@@ -1,0 +1,22 @@
+Our initial Intuition:
+The key to a robust solution is a globally optimal plan
+
+
+first we implemented the naive global plan finding approach... that was
+waaaayyy too slow (couldn't handle more than 5 requests and one elevator!)
+we treated this as a graph navigation problem, introducing a lot more 
+complexity than was necessary.
+
+Finding stuff faster (reducing complexity):
+- care about floors, not only requests
+- some requests *had* to be served by specific elevators -> less choice!
+  Here we should show a nice venn diagram of an example 3 elevators and
+  how requests would be divided amongst them
+- computing travel distance without recursively constructing paths through
+  a graph
+
+After that our progress has been basically towards specifying more and more
+of the plan in the first shot iteration.
+
+We tried incrementally deriving stuff in the style of a finite state machine
+but this proved to be very difficult to understand and debug
