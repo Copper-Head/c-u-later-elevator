@@ -1,0 +1,362 @@
+\documentclass{beamer}
+\usepackage{pgfpages}
+
+\setbeameroption{show notes}
+\setbeameroption{show notes on second screen}
+
+\usetheme{metropolis}           % Use metropolis theme (https://github.com/matze/mtheme)
+\usepackage{listings}
+\usepackage{color}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\definecolor{codeblue}{rgb}{0.102, 0.102, 0.255}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen},
+    identifierstyle=\color{codeblue},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\footnotesize,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=true,
+    tabsize=4,
+    literate={\ \ }{{\ \ }}1,
+}
+
+\lstset{style=mystyle}
+
+\title{Advanced Problem Solving Techniques\\Final Project}
+\date{\today}
+\author{Ilia Kurenkov\\Lisa Raithel}
+% (kurenkov@uni-potsdam.de)
+% (lraithel@uni-potsdam.de)
+\institute{University of Potsdam\\MSc. Cognitive Systems}
+
+\begin{document}
+  \maketitle
+
+  \section{Implementation}
+
+  \begin{frame}{Implementation -- Intuition}
+
+    \begin{itemize}
+    	\item build globally optimal plan
+    	\item elevators move according to plan
+    \end{itemize}
+
+  \end{frame}
+  \note[itemize]{
+    \item not really what we were supposed to do
+    \item not possible to add new floors while running
+    \item ...
+  }
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+  \begin{frame}{Implementation -- Idea I}
+
+    \begin{itemize}
+    	\item naive solution: graph navigation problem
+    	\item way too slow
+    	\item couldn't handle more than five requests and one elevator $\rightarrow$ too complex
+    \end{itemize}
+
+  \end{frame}
+
+    \note[itemize]{
+      \item treated problem as graph navigation problem
+      \item discovered this approach is way too slow
+    }
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Implementation -- Idea II}
+
+    \begin{itemize}
+    	\item derive solution incrementally in the style of a finite state machine
+    	\item fast, but failed for some instances
+    	\item difficult to understand and debug
+
+    \end{itemize}
+
+\end{frame}
+
+\note[itemize]{
+    \item coolest idea
+    \item treat elevators and their ``ways'' as a finite state machine
+    \item elevator goes from state to state, like ``serving'', ``moving to target floor'', ``being done''
+    \item fastest (?) solution so far, but failures
+    \item with more complex instances we got into problems, hard to debug what caused the failures
+  }
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+  \begin{frame}{Implementation -- Helpful Clues}
+
+    \begin{itemize}
+		\item care about floors, not only requests
+		\begin{itemize}
+			\item floors that need to be served
+			\item floors with nothing to do
+		\end{itemize}
+		\item some requests have to be served by specific elevators $\rightarrow$ less choice
+		\item divide requests equally amongst elevators
+		\item compute travel distance without recursively constructing paths through a graph
+  	\item specifying of plan in the first shot iteration
+    \end{itemize}
+
+  \end{frame}
+
+  \note[itemize]{
+    \item some clues we used: the actual floor position, not only requests
+    \item distinguish about target floors and non-target floors
+    \item deliver requests have to be served by a specific elevator $\rightarrow$ elevators have to go at least in this direction and will likely pass other floors on their way
+    \item so save time, that is, steps, divide requests equally
+    \item calculate travel distances to keep track of time/steps
+    \item in the end: specified more and more of the ``travel plan'' before the elevators actually moved
+    \item \textbf{venn diagram of an example 3 elevators and how requests would be divided amongst them?}
+  }
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+    \begin{frame}{Implementation -- Idea III}
+
+    \begin{itemize}
+    	\item identify floors that need to be served
+    	\item add deliver requests to corresponding elevator
+    	\item distribute remaining request equally
+        \begin{itemize}
+          \item no elevator should be allowed to idle while another is still working
+          \item \texttt{move} as small a distance as possible
+        \end{itemize}
+    \end{itemize}
+
+
+
+    \begin{itemize}
+    	\item behave differently when there's only one elevator
+    \end{itemize}
+
+  \end{frame}
+
+  \note[itemize]{
+    \item wanted to have target floors and ignore the rest (only operation in remaining floors: \texttt{move})
+    \item deliver requests had assigned elevator, so we added them to the elevators ``target list''
+    \item wanted to assign the remaining \texttt{calls} equally
+    \item elevators should move as little as possible to save time
+    \item somewhat different behavior for single elevators since they have to serve all floors
+  }
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \begin{frame}[fragile]{Implementation -- Idea III (\#program base.)}
+
+% \begin{lstlisting}[language=Prolog]
+% % each elevator is free to choose as targets
+% % any subset of the remaining free calls.
+% { target(E, F) : free_call(F) } :-
+%         agent(elevator(E)),
+%         not only_one_elevator.
+
+% % Note that every "free call" must be served.
+% :- free_call(F), not target(_, F).
+
+% \end{lstlisting}
+% \end{frame}
+
+% \note[itemize]{
+%   \item first snippet:
+%   \begin{itemize}
+%     \item distribute the remaining targets amongst the elevators
+%     \item (if there is more than one elevator)
+%   \end{itemize}
+%   \item second snippet: make sure that every call has an elevator taking care of it
+% }
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}[fragile]{Implementation -- \#program base.}
+
+  \begin{itemize}
+    \item check if there is a request right on the floor where the elevator starts
+    \item predicate that assigns ``coordinates'' from elevator to target
+    \item get the distance to target furthest along some direction
+  \end{itemize}
+
+\begin{lstlisting}[language=Prolog]
+% Create coordinates from elevator to target
+target_coord(E, -1, F, | DIST |) :-
+        init(at(elevator(E), FE)),
+        target(E, F),
+        DIST = FE - F,
+        DIST > 0.
+
+\end{lstlisting}
+\end{frame}
+
+\note[itemize]{
+  \item make sure that requests on the starting floor are served
+  \item designed predicate that assigns the ``way'' from current elevator position to target position (direction in which to go, distance to travel)
+  \item calculated distance to the targets with the greatest distance $\rightarrow$ after traveling this distance, the elevator doesn't have to go further (done with all requests)
+
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}[fragile]{Implementation -- \#program base.}
+
+  \begin{itemize}
+    \item if elevator has targets above and below, the starting direction is direction of nearest target
+    \item count \texttt{move} and \texttt{serve} operations
+    \item combine number of \texttt{move} and \texttt{serve} operations to get the number of steps
+  \end{itemize}
+
+\begin{lstlisting}[language=Prolog]
+% Combine serves and moves to get number of steps,
+% which we then try to minimize.
+n_steps(E, STEPS) :-
+        STEPS = ST + D,
+        total_n_serves(E, ST),
+        total_n_moves(E, D),
+        agent(elevator(E)).
+
+\end{lstlisting}
+
+
+\end{frame}
+
+\note[itemize]{
+  \item determine the direction in which an elevator moves first $\rightarrow$ depends on distance to first target
+  \item count how many \texttt{moves} in total occur on each side (direction) of the elevator's starting position
+  \item if elevator needs to change directions (targets on both sides of starting position), the distance that is traveled twice should be the smaller distance
+  \item same goes for the number of \texttt{serves}
+  \item combine those numbers to get the number of need steps to complete a single elevator's mission
+  \item this is also an aspect we want to minimize later
+}
+
+\begin{frame}[fragile]{Implementation -- \#program base.}
+  Elevator Instructions:
+  \begin{itemize}
+    \item fix the serving times: determine \textit{where} and \textit{when} the elevator has to serve
+    \item determine when elevators have to switch direction
+    \item determine the current direction for each time step
+  \end{itemize}
+
+\begin{lstlisting}[language=Prolog]
+% For bidirectional elevators we need to know
+% when they switch direction
+switch_point(E, STEP) :-
+        bidirectional(E),
+        initial_direction(E, DIR),
+        furthest_along(E, DIR, DIST),
+        n_serves(E, DIR, STOPS),
+        STEP = STOPS + DIST.
+\end{lstlisting}
+
+\end{frame}
+
+
+\note[itemize]{
+  \item general elevator instructions $\rightarrow$ elevators act according to their predefined plan
+  \item make sure to serve requests at the starting positions if there are any
+  \item determine serving ``where's'' and ``when's'' $\rightarrow$ elevators have fixed schedule, calculations based on travel distances and previously made stops and moves
+  \item set the switching directions time step $\rightarrow$ when elevator has reached target that was the furthest above or below
+  \item make sure the elevator knows in each time step n which direction he has to move next
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}[fragile]{Implementation -- \#program step(t).}
+  \begin{itemize}
+    \item derive \texttt{do} and \texttt{holds} predicates based on \texttt{serve\_at} plans
+    \item elevator moves if it does not serve and there are remaining targets
+    \item carry requests along if they are not served yet
+    \item update elevator positions after every \texttt{move}
+  \end{itemize}
+
+\begin{lstlisting}[language=Prolog]
+% serve if the plan says so
+do(elevator(E), serve, t) :-
+        serve_at(E, F, t),
+        holds(at(elevator(E), F), t - 1).
+
+% move if there is something left to do
+do(elevator(E), move(DIR), t) :-
+        current_direction(E, DIR, t),
+        not serve_at(E, _, t).
+
+\end{lstlisting}
+
+\end{frame}
+
+\note[itemize]{
+  \item entire incremental part is derived from the previously determined plan
+  \item elevators only serve if the plan says ``serve at this time step''
+  \item if there is something left to do (\texttt{current\_direction()}), the elevator has to move (no idling)
+  \item if a request is not served, then it is carried along (if there was no serving on the request floor)
+  \item update the position after each time step
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\section{Optimization}
+
+\begin{frame}[fragile]{Optimization}
+  \begin{itemize}
+    \item get number of steps the slowest elevator has to make
+    \item get combined travel distances of all elevators
+    \item minimize those, priority on minimizing the needed steps
+  \end{itemize}
+
+\begin{lstlisting}[language=Prolog]
+% minimizing steps is more important
+% than traveled distance
+#minimize{ 1@5,S : elevator_step(S) }.
+#minimize{ 1@2,T : travel_distance(T) }.
+\end{lstlisting}
+\end{frame}
+
+
+\note[itemize]{
+  \item get the maximum number of steps the slowest elevator has to make
+  \item slowest elevator = elevator with most requests/longest distance
+  \item sum up travel distances of all elevators
+  \item first minimize the steps, then the overall travel distance
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+  \section{Results}
+
+  \begin{frame}{Results}
+  \begin{itemize}
+  	\item no timeouts
+  	\item slowest instance: test case 58 with 11927 ms
+  	\item overall time: 149028 ms
+  \end{itemize}
+
+  \end{frame}
+
+\note[itemize]{
+  \item ...
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\end{document}
